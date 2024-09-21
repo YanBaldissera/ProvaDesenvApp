@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -99,6 +100,8 @@ fun cadastrarProdutos(navController: NavController, produtos: MutableList<Produt
     Column(Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center) {
+        
+        Text(text = "Cadastrar Produtos:", fontSize = 25.sp)
 
         TextField(value = nomeProduto, onValueChange = { nomeProduto = it },
             label = { Text("Digite o nome do produto") },
@@ -180,19 +183,29 @@ fun ListaProdutos(navController: NavController){
 
         val produtos = Estoque.listarProduto()
 
-        Box(modifier = Modifier.fillMaxSize()
+        Box(modifier = Modifier
+            .fillMaxSize()
             .padding(16.dp)){
+
+            Column(modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center) {
+
+                Text(text = "Lista de Produtos:", fontSize = 25.sp)
+
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                items(produtos){ produto ->
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween) {
+                items(produtos) { produto ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
 
                         Text(text = "${produto.nomeProduto} (${produto.quantidade})")
 
@@ -205,11 +218,13 @@ fun ListaProdutos(navController: NavController){
 
                     }
                 }
+            }
 
             }
             Button(onClick = {
                 navController.navigate("tela4")
-            }, modifier = Modifier.align(Alignment.BottomCenter)
+            }, modifier = Modifier
+                .align(Alignment.BottomCenter)
                 .padding(16.dp)) {
                 Text(text = "Estatística")
             }
@@ -226,6 +241,8 @@ fun DetalhesProdutos(navController: NavHostController, produto: Produto) {
         verticalArrangement = Arrangement.Center
 
     ) {
+        Text(text = "Detalhes do Produto:", fontSize = 25.sp)
+        Spacer(modifier = Modifier.height(15.dp))
         Text(text = "Nome: ${produto.nomeProduto}")
         Spacer(modifier = Modifier.height(15.dp))
         Text(text = "Categoria: ${produto.categoria}")
@@ -251,7 +268,7 @@ fun estatiscaProdutos(navController: NavController){
         verticalArrangement = Arrangement.Center
 
     ) {
-        Text(text = "Estatística do Estoque")
+        Text(text = "Estatística do Estoque:", fontSize = 25.sp)
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Valor total do estoque: R$${valorTotalEstoque}")
         Spacer(modifier = Modifier.height(15.dp))
