@@ -14,6 +14,10 @@ class Estoque {
             return produtos.sumOf{ it.preco * it.quantidade}
         }
 
+        fun calcularQuantidadeProdutos(): Int {
+            return produtos.sumOf { it.quantidade }
+        }
+
         fun listarProduto(): List<Produto>{
             return produtos
         }

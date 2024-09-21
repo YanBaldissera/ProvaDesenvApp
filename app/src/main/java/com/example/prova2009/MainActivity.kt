@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -59,7 +61,7 @@ fun Navegacao(){
 
     NavHost(navController = navController, startDestination = "tela1"){
         composable("tela1"){ cadastrarProdutos(navController, produtos) }
-        composable("tela2") { ListaProdutos(navController, produtos)  }
+        composable("tela2") { ListaProdutos(navController)  }
         composable("tela3/{detalhesJson}") {
 
             backStackEntry ->
@@ -67,7 +69,10 @@ fun Navegacao(){
             val detalhes = Gson().fromJson(detalhesJson, Produto::class.java)
 
             DetalhesProdutos(navController, detalhes) }
+
+        composable("tela4") { estatiscaProdutos(navController) }
     }
+
 }
 
 @Composable
@@ -171,32 +176,43 @@ fun cadastrarProdutos(navController: NavController, produtos: MutableList<Produt
 }
 
 @Composable
-fun ListaProdutos(navController: NavController, produtos: List<Produto>){
+fun ListaProdutos(navController: NavController){
 
         val produtos = Estoque.listarProduto()
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            items(produtos){ produto ->
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween) {
 
-                    Text(text = "${produto.nomeProduto} (${produto.quantidade})")
-                    
-                    Button(onClick = {
-                        val detalhesJson = Gson().toJson(produto)
-                        navController.navigate("tela3/$detalhesJson")
-                    }) {
-                        Text(text = "Detalhes")
+        Box(modifier = Modifier.fillMaxSize()
+            .padding(16.dp)){
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                items(produtos){ produto ->
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween) {
+
+                        Text(text = "${produto.nomeProduto} (${produto.quantidade})")
+
+                        Button(onClick = {
+                            val detalhesJson = Gson().toJson(produto)
+                            navController.navigate("tela3/$detalhesJson")
+                        }) {
+                            Text(text = "Detalhes")
+                        }
+
                     }
-
                 }
-            }
 
+            }
+            Button(onClick = {
+                navController.navigate("tela4")
+            }, modifier = Modifier.align(Alignment.BottomCenter)
+                .padding(16.dp)) {
+                Text(text = "Estatística")
+            }
         }
 }
 
@@ -222,6 +238,30 @@ fun DetalhesProdutos(navController: NavHostController, produto: Produto) {
             Text("Voltar")
         }
     }
+}
+
+@Composable
+fun estatiscaProdutos(navController: NavController){
+    val valorTotalEstoque = Estoque.calcularValorEstoque()
+    val quantidadeTotalProdutos = Estoque.calcularQuantidadeProdutos()
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+
+    ) {
+        Text(text = "Estatística do Estoque")
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "Valor total do estoque: R$${valorTotalEstoque}")
+        Spacer(modifier = Modifier.height(15.dp))
+        Text(text = "Quantidade total no estoque: ${quantidadeTotalProdutos}")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = { navController.popBackStack() }) {
+            Text("Voltar")
+        }
+    }
+
 }
 
 
