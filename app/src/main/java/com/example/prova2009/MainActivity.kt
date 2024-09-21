@@ -33,10 +33,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.prova2009.ui.theme.Prova2009Theme
+import com.google.gson.Gson
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +60,13 @@ fun Navegacao(){
     NavHost(navController = navController, startDestination = "tela1"){
         composable("tela1"){ cadastrarProdutos(navController, produtos) }
         composable("tela2") { ListaProdutos(navController, produtos)  }
-        composable("tela3") { DetalhesProdutos(navController, produtos) }
+        composable("tela3/{detalhesJson}") {
+
+            backStackEntry ->
+            val detalhesJson = backStackEntry.arguments?.getString("detalhesJson")
+            val detalhes = Gson().fromJson(detalhesJson, Produto::class.java)
+
+            DetalhesProdutos(navController, detalhes) }
     }
 }
 
@@ -160,8 +168,9 @@ fun ListaProdutos(navController: NavController, produtos: List<Produto>){
 
                     Text(text = "${produto.nomeProduto} (${produto.quantidade})")
                     
-                    Button(onClick = { 
-                        navController.navigate("tela3")
+                    Button(onClick = {
+                        val detalhesJson = Gson().toJson(produto)
+                        navController.navigate("tela3/$detalhesJson")
                     }) {
                         Text(text = "Detalhes")
                     }
@@ -173,10 +182,28 @@ fun ListaProdutos(navController: NavController, produtos: List<Produto>){
 }
 
 
+
 @Composable
-fun DetalhesProdutos(navController: NavController, produtos: MutableList<Produto>){
-    Text(text = "Hello world")
+fun DetalhesProdutos(navController: NavHostController, produto: Produto) {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+    ) {
+        Text(text = "Nome: ${produto.nomeProduto}")
+        Spacer(modifier = Modifier.height(15.dp))
+        Text(text = "Categoria: ${produto.categoria}")
+        Spacer(modifier = Modifier.height(15.dp))
+        Text(text = "Preço: R$${produto.preco}")
+        Spacer(modifier = Modifier.height(15.dp))
+        Text(text = "Quantidade em Estoque: ${produto.quantidade} unidades")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = { navController.popBackStack() }) {
+            Text("Voltar")
+        }
+    }
 }
+
 
 @Preview(showBackground = true)
 @Composable
