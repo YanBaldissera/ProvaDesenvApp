@@ -128,23 +128,40 @@ fun cadastrarProdutos(navController: NavController, produtos: MutableList<Produt
         Spacer(modifier = Modifier.height(16.dp))
         
         Button(onClick = {
-            if (nomeProduto.isEmpty() || categoria.isEmpty() || preco.isEmpty() || quantidade.isEmpty()){
-                Toast.makeText(context, "Todos os campos devem ser preenchidos!", Toast.LENGTH_SHORT).show()
-            }else{
-                val produto = Produto(
-                    nomeProduto = nomeProduto,
-                    categoria = categoria,
-                    preco = preco.toDouble(),
-                    quantidade = quantidade.toInt()
-                )
+            when {
+                nomeProduto.isEmpty() || categoria.isEmpty() || preco.isEmpty() || quantidade.isEmpty() -> {
+                    Toast.makeText(
+                        context,
+                        "Todos os campos devem ser preenchidos",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
 
-                produtos.add(produto)
-                Toast.makeText(context, "Produto adicionado", Toast.LENGTH_SHORT).show()
-                nomeProduto = ""
-                categoria = ""
-                preco = ""
-                quantidade = ""
-                navController.navigate("tela2")
+                preco.toDouble() < 0 -> {
+                    Toast.makeText(context, "Preço inválido", Toast.LENGTH_SHORT).show()
+                }
+
+                quantidade.toInt() < 1 -> {
+                    Toast.makeText(context, "Quantidade inválido", Toast.LENGTH_SHORT).show()
+                }
+
+                else -> {
+                    val produto = Produto(
+                        nomeProduto = nomeProduto,
+                        categoria = categoria,
+                        preco = preco.toDouble(),
+                        quantidade = quantidade.toInt()
+                    )
+                    if (Estoque.adicionarProduto(produto)){
+                        Toast.makeText(context, "Produto adicionado", Toast.LENGTH_SHORT).show()
+                    }
+
+                    nomeProduto = ""
+                    categoria = ""
+                    preco = ""
+                    quantidade = ""
+                    navController.navigate("tela2")
+                }
             }
         }) {
             Text(text = "Cadastrar")
@@ -155,10 +172,12 @@ fun cadastrarProdutos(navController: NavController, produtos: MutableList<Produt
 
 @Composable
 fun ListaProdutos(navController: NavController, produtos: List<Produto>){
+
+        val produtos = Estoque.listarProduto()
         LazyColumn(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             items(produtos){ produto ->
                 Row(modifier = Modifier
@@ -186,9 +205,10 @@ fun ListaProdutos(navController: NavController, produtos: List<Produto>){
 @Composable
 fun DetalhesProdutos(navController: NavHostController, produto: Produto) {
     Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+
     ) {
         Text(text = "Nome: ${produto.nomeProduto}")
         Spacer(modifier = Modifier.height(15.dp))
